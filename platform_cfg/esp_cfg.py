@@ -5,11 +5,11 @@ def configure_esp_default_packages(self, variables, targets):
 
     board_config = self.board_config(variables.get("board"))
     mcu = variables.get("board_build.mcu", board_config.get("build.mcu", "esp32"))
-    
+
     self.packages["framework-arduinoespressif32"]["optional"] = False
     self.packages["esp32-arduino-libs"]["optional"] = False
     self.packages["tool-esptoolpy"]["optional"] = False
-    
+
     # Enable check tools only when "check_tool" is enabled
     # self.packages里就是json文件中的所有 packages 项
     for p in self.packages:
@@ -21,9 +21,9 @@ def configure_esp_default_packages(self, variables, targets):
     for gdb_package in ("tool-xtensa-esp-elf-gdb", "tool-riscv32-esp-elf-gdb"):
         self.packages[gdb_package]["optional"] = False
         # if IS_WINDOWS:
-            # Note: On Windows GDB v12 is not able to
-            # launch a GDB server in pipe mode while v11 works fine
-            # self.packages[gdb_package]["version"] = "~11.2.0"
+        # Note: On Windows GDB v12 is not able to
+        # launch a GDB server in pipe mode while v11 works fine
+        # self.packages[gdb_package]["version"] = "~11.2.0"
 
     # 如果是 "esp32", "esp32s2", "esp32s3" 则必须使用 toolchain-xtensa-esp-elf 工具链，不是这几款就不用 toolchain-xtensa-esp-elf，把toolchain-xtensa-esp-elf删除
     if mcu in ("esp32", "esp32s2", "esp32s3"):
@@ -32,8 +32,8 @@ def configure_esp_default_packages(self, variables, targets):
         print("pop toolchain-xtensa-esp-elf")
         self.packages.pop("toolchain-xtensa-esp-elf", None)
 
-    if mcu in ("esp32s2", "esp32s3", "esp32c2", "esp32c3", "esp32c6", "esp32h2", "esp32p4"):
-        if mcu in ("esp32c2", "esp32c3", "esp32c6", "esp32h2", "esp32p4"):
+    if mcu in ("esp32s2", "esp32s3", "esp32c2", "esp32c3", "esp32c6", "esp32c5","esp32h2", "esp32p4"):
+        if mcu in ("esp32c2", "esp32c3", "esp32c6","esp32c5", "esp32h2", "esp32p4"):
             self.packages.pop("toolchain-esp32ulp", None)
         # RISC-V based toolchain for ESP32C3, ESP32C6 ESP32S2, ESP32S3 ULP
         self.packages["toolchain-riscv32-esp"]["optional"] = False
@@ -70,7 +70,7 @@ def _add_esp_default_debug_tools(self, board):
     ]
 
 
-    if board.get("build.mcu", "") in ("esp32c3", "esp32c6", "esp32s3", "esp32h2"):
+    if board.get("build.mcu", "") in ("esp32c3", "esp32c6", "esp32c5","esp32s3", "esp32h2"):
         supported_debug_tools.append("esp-builtin")
 
     upload_protocol = board.manifest.get("upload", {}).get("protocol")
@@ -111,7 +111,7 @@ def _add_esp_default_debug_tools(self, board):
                 if "openocd_target" in debug
                 else ("board", debug.get("openocd_board"))
             ),
-        ]
+            ]
 
         debug["tools"][link] = {
             "server": {
@@ -157,7 +157,7 @@ def configure_esp_debug_session(self, debug_config):
         debug_config.load_cmds != ["load"],
         not flash_images,
         not all([os.path.isfile(item["path"]) for item in flash_images]),
-    ]
+        ]
 
     if any(ignore_conds):
         return

@@ -66,7 +66,7 @@ def _get_board_memory_type(env):
             "build.%s.memory_type"
             % env.subst("$PIOFRAMEWORK").strip().replace(" ", "_"),
             default_type,
-        ),
+            ),
     )
 
 def _normalize_frequency(frequency):
@@ -101,8 +101,8 @@ def _get_board_f_boot(env):
 def _get_board_flash_mode(env):
     # print("in main py _get_board_flash_mode")
     if _get_board_memory_type(env) in (
-        "opi_opi",
-        "opi_qspi",
+            "opi_opi",
+            "opi_qspi",
     ):
         return "dout"
 
@@ -253,7 +253,7 @@ board = env.BoardConfig()
 mcu = board.get("build.mcu", "esp32")
 toolchain_arch = "xtensa-%s" % mcu
 filesystem = board.get("build.filesystem", "littlefs")
-if mcu in ("esp32c2", "esp32c3", "esp32c6", "esp32h2", "esp32p4"):
+if mcu in ("esp32c2", "esp32c3", "esp32c6","esp32c5", "esp32h2", "esp32p4"):
     toolchain_arch = "riscv32-esp"
 
 if "INTEGRATION_EXTRA_DATA" not in env:
@@ -274,13 +274,13 @@ env.Replace(
     GDB=join(
         platform.get_package_dir(
             "tool-riscv32-esp-elf-gdb"
-            if mcu in ("esp32c2", "esp32c3", "esp32c6", "esp32h2", "esp32p4")
+            if mcu in ("esp32c2", "esp32c3", "esp32c6", "esp32c5","esp32h2", "esp32p4")
             else "tool-xtensa-esp-elf-gdb"
         )
         or "",
         "bin",
         "%s-elf-gdb" % toolchain_arch,
-    ),
+        ),
     OBJCOPY=join(platform.get_package_dir("tool-esptoolpy") or "", "esptool.py"),
     RANLIB="%s-elf-gcc-ranlib" % toolchain_arch,
     SIZETOOL="%s-elf-size" % toolchain_arch,
@@ -522,7 +522,7 @@ elif upload_protocol in debug_tools:
                 if "uploadfs" in COMMAND_LINE_TARGETS
                 else env.get("INTEGRATION_EXTRA_DATA").get("application_offset")
             ),
-        ]
+            ]
     )
     if "uploadfs" not in COMMAND_LINE_TARGETS:
         for image in env.get("FLASH_EXTRA_IMAGES", []):
@@ -531,7 +531,7 @@ elif upload_protocol in debug_tools:
                     "-c",
                     "program_esp {{%s}} %s verify"
                     % (_to_unix_slashes(image[1]), image[0]),
-                ]
+                    ]
             )
     openocd_args.extend(["-c", "reset run; shutdown"])
     openocd_args = [
